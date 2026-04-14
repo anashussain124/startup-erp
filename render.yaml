@@ -1,0 +1,22 @@
+# Render Blueprint — deploy with "New > Blueprint Instance"
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: startup-erp
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DB_TYPE
+        value: sqlite
+      - key: SQLITE_PATH
+        value: /tmp/startup_erp.db
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: PYTHON_VERSION
+        value: "3.11.6"

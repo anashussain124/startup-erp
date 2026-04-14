@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM — Startup ERP</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-layout">
+        <div id="sidebar"></div>
+        <main class="main-content">
+            <div class="page-header">
+                <div><h1>🤝 Customer Relationship</h1><p class="header-subtitle">Customers, leads, sales & churn prediction</p></div>
+                <div class="header-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="exportReport('pdf')">📄 PDF</button>
+                    <button class="btn btn-ghost btn-sm" onclick="exportReport('excel')">📊 Excel</button>
+                </div>
+            </div>
+            <div class="flex gap-1 mb-3">
+                <button class="btn btn-ghost btn-sm tab-btn active" onclick="switchTab('customers')">Customers</button>
+                <button class="btn btn-ghost btn-sm tab-btn" onclick="switchTab('leads')">Leads</button>
+                <button class="btn btn-ghost btn-sm tab-btn" onclick="switchTab('sales')">Sales</button>
+                <button class="btn btn-ghost btn-sm tab-btn" onclick="switchTab('churn')">🤖 Churn Predictor</button>
+            </div>
+            <div id="customers-tab">
+                <div class="table-card"><div class="table-header"><h3>Customers</h3></div><div id="cust-table"><div class="loading-overlay"><div class="spinner"></div></div></div></div>
+            </div>
+            <div id="leads-tab" class="hidden">
+                <div class="table-card"><div class="table-header"><h3>Lead Pipeline</h3></div><div id="lead-table"><div class="loading-overlay"><div class="spinner"></div></div></div></div>
+            </div>
+            <div id="sales-tab" class="hidden">
+                <div class="table-card"><div class="table-header"><h3>Sales Records</h3></div><div id="sales-table"><div class="loading-overlay"><div class="spinner"></div></div></div></div>
+            </div>
+            <div id="churn-tab" class="hidden">
+                <div class="charts-grid">
+                    <div class="prediction-card">
+                        <h3>🤖 Customer Churn Predictor</h3>
+                        <form onsubmit="predictChurn(event)">
+                            <div class="form-row">
+                                <div class="form-group"><label>Purchase Frequency</label><input type="number" class="form-control" id="ml-freq" value="3" required></div>
+                                <div class="form-group"><label>Days Since Last Purchase</label><input type="number" class="form-control" id="ml-last" value="60" required></div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Lifetime Value ($)</label><input type="number" class="form-control" id="ml-ltv" value="5000" required></div>
+                                <div class="form-group"><label>Support Tickets</label><input type="number" class="form-control" id="ml-tickets" value="3" required></div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Avg Order Value ($)</label><input type="number" class="form-control" id="ml-aov" value="500" required></div>
+                                <div class="form-group"><label>Account Age (months)</label><input type="number" class="form-control" id="ml-age" value="18" required></div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width:100%;">Predict Churn</button>
+                        </form>
+                        <div id="churn-result" class="mt-2"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="js/api.js"></script>
+    <script src="js/crm.js"></script>
+</body>
+</html>

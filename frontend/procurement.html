@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procurement — Startup ERP</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-layout">
+        <div id="sidebar"></div>
+        <main class="main-content">
+            <div class="page-header">
+                <div><h1>📦 Procurement</h1><p class="header-subtitle">Vendors, purchase orders & inventory management</p></div>
+                <div class="header-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="exportReport('pdf')">📄 PDF</button>
+                    <button class="btn btn-ghost btn-sm" onclick="exportReport('excel')">📊 Excel</button>
+                </div>
+            </div>
+            <div class="flex gap-1 mb-3">
+                <button class="btn btn-ghost btn-sm tab-btn active" onclick="switchTab('vendors')">Vendors</button>
+                <button class="btn btn-ghost btn-sm tab-btn" onclick="switchTab('orders')">Purchase Orders</button>
+                <button class="btn btn-ghost btn-sm tab-btn" onclick="switchTab('inventory')">Inventory</button>
+            </div>
+            <div id="vendors-tab">
+                <div class="table-card"><div class="table-header"><h3>Vendors</h3></div><div id="vendors-table"><div class="loading-overlay"><div class="spinner"></div></div></div></div>
+            </div>
+            <div id="orders-tab" class="hidden">
+                <div class="table-card"><div class="table-header"><h3>Purchase Orders</h3></div><div id="po-table"><div class="loading-overlay"><div class="spinner"></div></div></div></div>
+            </div>
+            <div id="inventory-tab" class="hidden">
+                <div class="table-card"><div class="table-header"><h3>Inventory Items</h3></div><div id="inv-table"><div class="loading-overlay"><div class="spinner"></div></div></div></div>
+            </div>
+        </main>
+    </div>
+    <script src="js/api.js"></script>
+    <script src="js/procurement.js"></script>
+</body>
+</html>
