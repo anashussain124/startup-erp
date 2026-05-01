@@ -37,6 +37,7 @@ def get_database_url() -> str:
     # 1. Explicit DATABASE_URL takes top priority (Render, Heroku, etc.)
     if DATABASE_URL_OVERRIDE:
         return DATABASE_URL_OVERRIDE
+    
     # 2. Construct from DB_TYPE
     if DB_TYPE == "mysql":
         return (
@@ -48,7 +49,13 @@ def get_database_url() -> str:
             f"postgresql+psycopg2://{PG_USER}:{PG_PASSWORD}"
             f"@{PG_HOST}:{PG_PORT}/{PG_DB}"
         )
-    return f"sqlite:///{SQLITE_PATH}"
+    
+    # 3. SQLite - use /tmp on Vercel because the root filesystem is read-only
+    path = SQLITE_PATH
+    if os.getenv("VERCEL"):
+        path = f"/tmp/{SQLITE_PATH}"
+    
+    return f"sqlite:///{path}"
 
 DATABASE_URL = get_database_url()
 
