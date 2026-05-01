@@ -23,21 +23,24 @@ def seed():
 
     try:
         # ── Users ────────────────────────────────────────────────────────
-        if db.query(User).count() == 0:
-            users = [
-                User(username="admin", email="admin@startup.com",
-                     hashed_password=hash_password("admin123"),
-                     full_name="System Admin", role="admin"),
-                User(username="manager", email="manager@startup.com",
-                     hashed_password=hash_password("manager123"),
-                     full_name="Jane Manager", role="manager"),
-                User(username="employee", email="employee@startup.com",
-                     hashed_password=hash_password("employee123"),
-                     full_name="John Worker", role="employee"),
-            ]
-            db.add_all(users)
-            db.commit()
-            print("[OK] Users created (admin/admin123, manager/manager123, employee/employee123)")
+        # ── Users ────────────────────────────────────────────────────────
+        demo_users = [
+            ("admin", "admin@startup.com", "admin123", "System Admin", "admin"),
+            ("manager", "manager@startup.com", "manager123", "Jane Manager", "manager"),
+            ("employee", "employee@startup.com", "employee123", "John Worker", "employee"),
+        ]
+        
+        for uname, email, pwd, fname, role in demo_users:
+            if not db.query(User).filter(User.username == uname).first():
+                new_user = User(
+                    username=uname, email=email,
+                    hashed_password=hash_password(pwd),
+                    full_name=fname, role=role
+                )
+                db.add(new_user)
+                print(f"[OK] Created user: {uname}")
+        
+        db.commit()
 
         # ── Employees ────────────────────────────────────────────────────
         if db.query(Employee).count() == 0:
