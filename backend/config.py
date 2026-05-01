@@ -8,9 +8,12 @@ import os
 # =============================================================================
 # Database Configuration
 # =============================================================================
-# Priority: DATABASE_URL env var > DB_TYPE-based construction
-# Render provides DATABASE_URL automatically for PostgreSQL services.
-DATABASE_URL_OVERRIDE = os.getenv("DATABASE_URL")
+# Priority: DATABASE_URL > POSTGRES_URL > SUPABASE_DB_URL
+DATABASE_URL_OVERRIDE = (
+    os.getenv("DATABASE_URL") or 
+    os.getenv("POSTGRES_URL") or 
+    os.getenv("SUPABASE_DB_URL")
+)
 
 # DB_TYPE: "sqlite", "mysql", or "postgresql"
 DB_TYPE = os.getenv("DB_TYPE", "sqlite")
