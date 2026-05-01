@@ -34,8 +34,12 @@ SQLITE_PATH = os.getenv("SQLITE_PATH", "startup_erp.db")
 
 def get_database_url() -> str:
     """Return the appropriate database URL based on config priority."""
-    # 1. Explicit DATABASE_URL takes top priority (Render, Heroku, etc.)
+    # 1. Explicit DATABASE_URL takes top priority (Supabase, Render, Heroku, etc.)
     if DATABASE_URL_OVERRIDE:
+        # SQLAlchemy 1.4+ requires 'postgresql://' instead of 'postgres://'
+        # We also force 'psycopg2' for better Vercel compatibility
+        if DATABASE_URL_OVERRIDE.startswith("postgres://"):
+            return DATABASE_URL_OVERRIDE.replace("postgres://", "postgresql+psycopg2://", 1)
         return DATABASE_URL_OVERRIDE
     
     # 2. Construct from DB_TYPE
