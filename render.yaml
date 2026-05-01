@@ -9,14 +9,24 @@ services:
     plan: free
     buildCommand: pip install -r backend/requirements.txt
     startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
     envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: startup-erp-db
+          property: connectionString
       - key: DB_TYPE
-        value: sqlite
-      - key: SQLITE_PATH
-        value: /tmp/startup_erp.db
+        value: postgresql
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGINS
         value: "*"
       - key: PYTHON_VERSION
         value: "3.11.6"
+
+databases:
+  - name: startup-erp-db
+    plan: free
+    region: oregon
+    databaseName: startup_erp
+    user: erp_user

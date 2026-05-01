@@ -4,14 +4,16 @@ Main entry point. Registers all routers and configures middleware.
 """
 import sys
 import os
+import logging
+from contextlib import asynccontextmanager
 
 # Add backend dir to path for absolute imports
 sys.path.insert(0, os.path.dirname(__file__))
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 
 from config import CORS_ORIGINS
 from database import engine, Base, SessionLocal
@@ -29,6 +31,49 @@ from routers.crm import router as crm_router
 from routers.dashboard import router as dashboard_router
 from routers.reports import router as reports_router
 from ml.predict import router as ml_router
+from routers.insights import router as insights_router
+from routers.forecast import router as forecast_router
+
+
+# ── Logging ──────────────────────────────────────────────────────────────────
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger("erp")
+
+
+# ── Lifespan (replaces deprecated @app.on_event) ────────────────────────────
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup: create tables + seed demo data. Shutdown: cleanup."""
+    # Startup
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    try:
+        user_count = db.query(models.user.User).count()
+        if user_count == 0:
+            logger.info("[SEED] Empty database detected - seeding demo data...")
+            from seed_data import seed
+            seed()
+            logger.info("[SEED] Demo data seeded successfully!")
+        else:
+            logger.info(f"[DB] Database ready ({user_count} users found)")
+    except Exception as e:
+        logger.warning(f"Seed check skipped: {e}")
+    finally:
+        db.close()
+    # Pre-load ML models (thread-safe, eliminates cold-start failures)
+    try:
+        from ml.predict import preload_models
+        preload_models()
+    except Exception as e:
+        logger.warning(f"ML preload skipped: {e}")
+    yield
+    # Shutdown
+    logger.info("[SHUTDOWN] Application shutting down")
+
 
 # ── App ──────────────────────────────────────────────────────────────────────
 app = FastAPI(
@@ -37,7 +82,30 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
+
+
+# ── Global Exception Handlers ───────────────────────────────────────────────
+@app.exception_handler(ValueError)
+async def value_error_handler(request: Request, exc: ValueError):
+    """Convert service-layer ValueError (duplicates, validation) to 409."""
+    logger.warning(f"Conflict: {exc} | path={request.url.path}")
+    return JSONResponse(
+        status_code=409,
+        content={"detail": str(exc)},
+    )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Catch unhandled exceptions and return structured JSON."""
+    logger.error(f"Unhandled error: {type(exc).__name__}: {exc} | path={request.url.path}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error. Please try again later."},
+    )
+
 
 # ── CORS ─────────────────────────────────────────────────────────────────────
 app.add_middleware(
@@ -47,27 +115,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# ── Create Tables ────────────────────────────────────────────────────────────
-Base.metadata.create_all(bind=engine)
-
-
-# ── Auto-seed on first deploy ────────────────────────────────────────────────
-@app.on_event("startup")
-def seed_on_first_run():
-    """Seed demo data if the database is empty (first deploy)."""
-    db = SessionLocal()
-    try:
-        user_count = db.query(models.user.User).count()
-        if user_count == 0:
-            print("⚡ Empty database detected — seeding demo data...")
-            from seed_data import seed
-            seed()
-            print("✅ Demo data seeded successfully!")
-    except Exception as e:
-        print(f"⚠ Seed check skipped: {e}")
-    finally:
-        db.close()
 
 
 # ── Register Routers (BEFORE static mount) ───────────────────────────────────
@@ -80,6 +127,8 @@ app.include_router(crm_router)
 app.include_router(dashboard_router)
 app.include_router(reports_router)
 app.include_router(ml_router)
+app.include_router(insights_router)
+app.include_router(forecast_router)
 
 
 @app.get("/")
@@ -90,7 +139,15 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "healthy"}
+    """Health check with DB connectivity test."""
+    try:
+        db = SessionLocal()
+        db.execute(models.user.User.__table__.select().limit(1))
+        db.close()
+        db_status = "connected"
+    except Exception:
+        db_status = "disconnected"
+    return {"status": "healthy", "database": db_status, "version": "1.0.0"}
 
 
 @app.get("/api/info")

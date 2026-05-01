@@ -3,7 +3,7 @@ HCM models — Employee, Attendance, Payroll, Performance.
 """
 from sqlalchemy import (
     Column, Integer, String, Float, Boolean, Date, DateTime, Time, Text,
-    ForeignKey,
+    ForeignKey, Index,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -43,6 +43,10 @@ class Attendance(Base):
     status = Column(String(20), nullable=False, default="present")  # present | absent | late | leave
 
     employee = relationship("Employee", back_populates="attendance_records")
+
+    __table_args__ = (
+        Index("ix_attendance_emp_date", "employee_id", "date"),
+    )
 
 
 class Payroll(Base):

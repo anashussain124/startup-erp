@@ -15,6 +15,9 @@ from schemas.crm import (
 # Customer CRUD
 # ═══════════════════════════════════════════════════════════════════════════
 def create_customer(db: Session, data: CustomerCreate) -> Customer:
+    # Duplicate check
+    if db.query(Customer).filter(Customer.email == data.email).first():
+        raise ValueError(f"Customer email '{data.email}' already exists")
     customer = Customer(**data.model_dump())
     db.add(customer)
     db.commit()

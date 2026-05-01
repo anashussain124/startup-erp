@@ -53,6 +53,9 @@ def delete_vendor(db: Session, vendor_id: int) -> bool:
 # PurchaseOrder CRUD
 # ═══════════════════════════════════════════════════════════════════════════
 def create_purchase_order(db: Session, data: PurchaseOrderCreate) -> PurchaseOrder:
+    # Duplicate check
+    if db.query(PurchaseOrder).filter(PurchaseOrder.po_number == data.po_number).first():
+        raise ValueError(f"PO number '{data.po_number}' already exists")
     po = PurchaseOrder(**data.model_dump())
     db.add(po)
     db.commit()
@@ -95,6 +98,9 @@ def delete_purchase_order(db: Session, po_id: int) -> bool:
 # InventoryItem CRUD
 # ═══════════════════════════════════════════════════════════════════════════
 def create_inventory_item(db: Session, data: InventoryItemCreate) -> InventoryItem:
+    # Duplicate check
+    if db.query(InventoryItem).filter(InventoryItem.sku == data.sku).first():
+        raise ValueError(f"SKU '{data.sku}' already exists")
     item = InventoryItem(**data.model_dump())
     db.add(item)
     db.commit()

@@ -15,6 +15,11 @@ from schemas.hcm import (
 # Employee CRUD
 # ═══════════════════════════════════════════════════════════════════════════
 def create_employee(db: Session, data: EmployeeCreate) -> Employee:
+    # Duplicate checks
+    if db.query(Employee).filter(Employee.employee_code == data.employee_code).first():
+        raise ValueError(f"Employee code '{data.employee_code}' already exists")
+    if db.query(Employee).filter(Employee.email == data.email).first():
+        raise ValueError(f"Email '{data.email}' already exists")
     emp = Employee(**data.model_dump())
     db.add(emp)
     db.commit()

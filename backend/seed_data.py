@@ -37,7 +37,7 @@ def seed():
             ]
             db.add_all(users)
             db.commit()
-            print("✓ Users created (admin/admin123, manager/manager123, employee/employee123)")
+            print("[OK] Users created (admin/admin123, manager/manager123, employee/employee123)")
 
         # ── Employees ────────────────────────────────────────────────────
         if db.query(Employee).count() == 0:
@@ -74,7 +74,7 @@ def seed():
                 employees.append(emp)
             db.add_all(employees)
             db.commit()
-            print(f"✓ {len(employees)} Employees created")
+            print(f"[OK] {len(employees)} Employees created")
 
             # ── Attendance ───────────────────────────────────────────────
             attendance = []
@@ -96,7 +96,7 @@ def seed():
                     ))
             db.add_all(attendance)
             db.commit()
-            print(f"✓ {len(attendance)} Attendance records created")
+            print(f"[OK] {len(attendance)} Attendance records created")
 
             # ── Payroll ──────────────────────────────────────────────────
             payrolls = []
@@ -112,7 +112,7 @@ def seed():
                     ))
             db.add_all(payrolls)
             db.commit()
-            print(f"✓ {len(payrolls)} Payroll records created")
+            print(f"[OK] {len(payrolls)} Payroll records created")
 
             # ── Performance ──────────────────────────────────────────────
             performances = []
@@ -129,7 +129,7 @@ def seed():
                     ))
             db.add_all(performances)
             db.commit()
-            print(f"✓ {len(performances)} Performance reviews created")
+            print(f"[OK] {len(performances)} Performance reviews created")
 
         # ── Finance ──────────────────────────────────────────────────────
         if db.query(Revenue).count() == 0:
@@ -156,7 +156,7 @@ def seed():
                     ))
             db.add_all(revenues)
             db.commit()
-            print(f"✓ {len(revenues)} Revenue records created")
+            print(f"[OK] {len(revenues)} Revenue records created")
 
             expenses = []
             for month in range(1, 13):
@@ -179,7 +179,7 @@ def seed():
                     ))
             db.add_all(expenses)
             db.commit()
-            print(f"✓ {len(expenses)} Expense records created")
+            print(f"[OK] {len(expenses)} Expense records created")
 
         # ── Procurement ──────────────────────────────────────────────────
         if db.query(Vendor).count() == 0:
@@ -239,7 +239,7 @@ def seed():
                 ))
             db.add_all(inv_items)
             db.commit()
-            print(f"✓ {len(vendors)} Vendors, {len(pos)} POs, {len(inv_items)} Inventory items created")
+            print(f"[OK] {len(vendors)} Vendors, {len(pos)} POs, {len(inv_items)} Inventory items created")
 
         # ── PPM ──────────────────────────────────────────────────────────
         if db.query(Project).count() == 0:
@@ -289,7 +289,7 @@ def seed():
                     ))
             db.add_all(tasks)
             db.commit()
-            print(f"✓ {len(projects)} Projects, {len(tasks)} Tasks created")
+            print(f"[OK] {len(projects)} Projects, {len(tasks)} Tasks created")
 
         # ── CRM ──────────────────────────────────────────────────────────
         if db.query(Customer).count() == 0:
@@ -351,9 +351,9 @@ def seed():
                 ))
             db.add_all(sales)
             db.commit()
-            print(f"✓ {len(customers)} Customers, {len(leads)} Leads, {len(sales)} Sales created")
+            print(f"[OK] {len(customers)} Customers, {len(leads)} Leads, {len(sales)} Sales created")
 
-        print("\n✅ Seed data complete!")
+        print("\n[DONE] Seed data complete!")
 
     finally:
         db.close()

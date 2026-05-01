@@ -1,6 +1,8 @@
 """
 Dashboard Router — KPI metrics and chart data aggregation.
+Includes a simple TTL cache for KPI queries to avoid redundant DB hits.
 """
+import time
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -17,9 +19,29 @@ from datetime import date
 router = APIRouter(prefix="/api/dashboard", tags=["Dashboard"])
 
 
+# ── Simple TTL Cache ─────────────────────────────────────────────────────────
+_kpi_cache = {"data": None, "expires": 0}
+KPI_CACHE_TTL = 60  # seconds
+
+
+def _get_cached_kpis():
+    if _kpi_cache["data"] and time.time() < _kpi_cache["expires"]:
+        return _kpi_cache["data"]
+    return None
+
+
+def _set_cached_kpis(data):
+    _kpi_cache["data"] = data
+    _kpi_cache["expires"] = time.time() + KPI_CACHE_TTL
+
+
 @router.get("/kpis")
 def get_kpis(db: Session = Depends(get_db), user=Depends(get_current_user)):
-    """Return key performance indicators across all modules."""
+    """Return key performance indicators across all modules (cached 60s)."""
+    cached = _get_cached_kpis()
+    if cached:
+        return cached
+
     current_year = date.today().year
 
     # HCM
@@ -45,7 +67,7 @@ def get_kpis(db: Session = Depends(get_db), user=Depends(get_current_user)):
     converted_leads = db.query(Lead).filter(Lead.status == "converted").count()
     conversion_rate = round((converted_leads / total_leads * 100), 1) if total_leads > 0 else 0
 
-    return {
+    result = {
         "hcm": {
             "total_employees": total_employees,
             "avg_performance": round(float(avg_performance), 2),
@@ -69,6 +91,9 @@ def get_kpis(db: Session = Depends(get_db), user=Depends(get_current_user)):
             "conversion_rate": conversion_rate,
         },
     }
+
+    _set_cached_kpis(result)
+    return result
 
 
 @router.get("/charts/revenue-trend")

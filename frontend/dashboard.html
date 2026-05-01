@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="ERP Dashboard — Key performance indicators and analytics">
+    <meta name="description" content="ERP Dashboard — Business intelligence and decision support">
     <title>Dashboard — Startup ERP</title>
     <link rel="stylesheet" href="css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -15,58 +15,75 @@
             <div class="page-header">
                 <div>
                     <h1>Dashboard</h1>
-                    <p class="header-subtitle">Real-time overview of your startup operations</p>
+                    <p class="header-subtitle">Business overview</p>
                 </div>
-                <div class="header-actions">
-                    <button class="btn btn-ghost btn-sm" onclick="loadDashboard()">🔄 Refresh</button>
-                    <button class="btn btn-primary btn-sm" onclick="window.open(API.BASE_URL + '/docs', '_blank')">📖 API Docs</button>
-                </div>
+            </div>
+
+            <!-- Executive Summary -->
+            <div id="exec-summary"></div>
+
+            <!-- AI Insights -->
+            <div class="insights-section" id="insights-section">
+                <h2>Insights</h2>
+                <div class="insights-grid" id="insights-grid"></div>
             </div>
 
             <!-- KPI Cards -->
-            <div class="kpi-grid" id="kpi-grid">
-                <div class="loading-overlay"><div class="spinner"></div></div>
+            <div class="kpi-grid" id="kpi-grid"></div>
+
+            <!-- Revenue Forecast -->
+            <div class="forecast-card" id="forecast-section">
+                <h3>
+                    Revenue Forecast (30-Day)
+                    <span class="forecast-model-tag" id="forecast-model-tag">ML</span>
+                </h3>
+                <div class="chart-container"><canvas id="forecastChart"></canvas></div>
             </div>
 
-            <!-- Charts Row 1 -->
+            <!-- Charts -->
             <div class="charts-grid">
                 <div class="chart-card">
-                    <h3>📈 Revenue vs Expenses Trend</h3>
+                    <h3>Revenue vs Expenses</h3>
                     <div class="chart-container"><canvas id="revExpChart"></canvas></div>
                 </div>
                 <div class="chart-card">
-                    <h3>🍩 Expenses by Category</h3>
+                    <h3>Expenses by Category</h3>
                     <div class="chart-container"><canvas id="expCatChart"></canvas></div>
                 </div>
             </div>
 
-            <!-- Charts Row 2 -->
             <div class="charts-grid">
                 <div class="chart-card">
-                    <h3>🏗️ Project Status</h3>
+                    <h3>Project Status</h3>
                     <div class="chart-container"><canvas id="projChart"></canvas></div>
                 </div>
                 <div class="chart-card">
-                    <h3>🔄 Lead Pipeline</h3>
+                    <h3>Lead Pipeline</h3>
                     <div class="chart-container"><canvas id="leadChart"></canvas></div>
                 </div>
             </div>
 
-            <!-- Charts Row 3 -->
+            <!-- Pro Hint (subtle, single line) -->
+            <div class="pro-hint">
+                <span class="pro-badge">Pro</span>
+                <p>Advanced AI forecasting, scenario analysis, and automated recommendations available in the Pro version.</p>
+            </div>
+
             <div class="charts-grid">
                 <div class="chart-card">
-                    <h3>🏢 Department Headcount</h3>
+                    <h3>Department Headcount</h3>
                     <div class="chart-container"><canvas id="deptChart"></canvas></div>
                 </div>
                 <div class="chart-card prediction-card">
-                    <h3>🤖 ML Predictions Summary</h3>
-                    <div id="ml-summary" class="loading-overlay"><div class="spinner"></div></div>
+                    <h3>ML Predictions</h3>
+                    <div id="ml-summary"></div>
                 </div>
             </div>
         </main>
     </div>
 
     <script src="js/api.js"></script>
+    <script src="js/command-palette.js"></script>
     <script src="js/dashboard.js"></script>
 </body>
 </html>
