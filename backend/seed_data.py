@@ -14,7 +14,7 @@ from models import *  # noqa — registers all models with Base
 from auth.password import hash_password
 
 
-def seed():
+def seed(fast_seed=False):
     """Create tables and populate with sample data."""
     print("Creating tables...")
     Base.metadata.create_all(bind=engine)
@@ -22,14 +22,14 @@ def seed():
     db = SessionLocal()
 
     try:
-        # ── Users ────────────────────────────────────────────────────────
-        # ── Users ────────────────────────────────────────────────────────
+        # ── Users (CRITICAL - Fast path) ──────────────────────────────────
         demo_users = [
             ("admin", "admin@startup.com", "admin123", "System Admin", "admin"),
             ("manager", "manager@startup.com", "manager123", "Jane Manager", "manager"),
             ("employee", "employee@startup.com", "employee123", "John Worker", "employee"),
         ]
         
+        has_new_user = False
         for uname, email, pwd, fname, role in demo_users:
             if not db.query(User).filter(User.username == uname).first():
                 new_user = User(
@@ -38,9 +38,17 @@ def seed():
                     full_name=fname, role=role
                 )
                 db.add(new_user)
-                print(f"[OK] Created user: {uname}")
+                has_new_user = True
         
-        db.commit()
+        if has_new_user:
+            db.commit()
+            print("[OK] Demo users ensured.")
+
+        # On Vercel, we stop here to avoid timeouts. 
+        # The app is fully functional, just without 1000+ rows of random history.
+        if fast_seed or os.getenv("VERCEL"):
+            print("[INFO] Skipping heavy data seeding on Vercel to prevent timeout.")
+            return
 
         # ── Employees ────────────────────────────────────────────────────
         if db.query(Employee).count() == 0:
