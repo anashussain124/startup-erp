@@ -118,17 +118,17 @@ app.add_middleware(
 
 
 # ── Register Routers (BEFORE static mount) ───────────────────────────────────
-app.include_router(auth_router)
-app.include_router(hcm_router)
-app.include_router(finance_router)
-app.include_router(procurement_router)
-app.include_router(ppm_router)
-app.include_router(crm_router)
-app.include_router(dashboard_router)
-app.include_router(reports_router)
-app.include_router(ml_router)
-app.include_router(insights_router)
-app.include_router(forecast_router)
+app.include_router(auth_router, prefix="/api")
+app.include_router(hcm_router, prefix="/api")
+app.include_router(finance_router, prefix="/api")
+app.include_router(procurement_router, prefix="/api")
+app.include_router(ppm_router, prefix="/api")
+app.include_router(crm_router, prefix="/api")
+app.include_router(dashboard_router, prefix="/api")
+app.include_router(reports_router, prefix="/api")
+app.include_router(ml_router, prefix="/api")
+app.include_router(insights_router, prefix="/api")
+app.include_router(forecast_router, prefix="/api")
 
 
 @app.get("/")

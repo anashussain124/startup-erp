@@ -5,7 +5,8 @@
 const API = (() => {
     // Auto-detect: use origin for deployed, localhost for dev
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const BASE_URL = isLocal ? 'http://127.0.0.1:8000' : window.location.origin;
+    // For local dev, use the FastAPI port. For production/Vercel, use /api prefix
+    const BASE_URL = isLocal ? 'http://127.0.0.1:8000/api' : `${window.location.origin}/api`;
 
     // Simple GET cache (30s TTL)
     const _cache = new Map();
@@ -44,7 +45,16 @@ const API = (() => {
             }
             if (res.status === 204) return null;
 
-            const data = await res.json();
+            let data;
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                data = await res.json();
+            } else {
+                const text = await res.text();
+                if (!res.ok) throw new Error(`Server Error (${res.status}): ${text.slice(0, 100)}...`);
+                return text;
+            }
+
             if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
 
             // Cache GET responses
