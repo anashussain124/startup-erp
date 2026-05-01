@@ -64,12 +64,13 @@ async def lifespan(app: FastAPI):
         logger.warning(f"Seed check skipped: {e}")
     finally:
         db.close()
-    # Pre-load ML models (thread-safe, eliminates cold-start failures)
-    try:
-        from ml.predict import preload_models
-        preload_models()
-    except Exception as e:
-        logger.warning(f"ML preload skipped: {e}")
+    # Pre-load ML models (skipped on Vercel to prevent cold-start timeouts)
+    if not os.getenv("VERCEL"):
+        try:
+            from ml.predict import preload_models
+            preload_models()
+        except Exception as e:
+            logger.warning(f"ML preload skipped: {e}")
     yield
     # Shutdown
     logger.info("[SHUTDOWN] Application shutting down")
