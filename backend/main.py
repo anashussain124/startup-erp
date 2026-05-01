@@ -52,14 +52,10 @@ async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
-        user_count = db.query(models.user.User).count()
-        if user_count == 0:
-            logger.info("[SEED] Empty database detected - seeding demo data...")
-            from seed_data import seed
-            seed()
-            logger.info("[SEED] Demo data seeded successfully!")
-        else:
-            logger.info(f"[DB] Database ready ({user_count} users found)")
+        from seed_data import seed
+        # Pass fast_seed=True if on Vercel to prevent timeouts
+        seed(fast_seed=os.getenv("VERCEL") is not None)
+        logger.info("[DB] Database and demo accounts verified.")
     except Exception as e:
         logger.warning(f"Seed check skipped: {e}")
     finally:
