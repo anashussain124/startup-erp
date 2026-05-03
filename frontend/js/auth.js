@@ -6,19 +6,36 @@ const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
 const fullNameInput = document.getElementById('full_name');
 const companyNameInput = document.getElementById('company_name');
-const loginBtn = document.getElementById('login-btn');
-const toggleBtn = document.getElementById('toggle-auth');
-const registerFields = document.getElementById('register-fields');
-const loginLabel = document.getElementById('login-label');
+const forgotPasswordBtn = document.getElementById('forgot-password');
 
 let isRegistering = false;
 
 toggleBtn.addEventListener('click', () => {
     isRegistering = !isRegistering;
     registerFields.style.display = isRegistering ? 'block' : 'none';
+    forgotPasswordBtn.style.display = isRegistering ? 'none' : 'block';
     loginBtn.textContent = isRegistering ? 'Create Account' : 'Sign In';
     toggleBtn.textContent = isRegistering ? 'Already have an account? Sign in' : "Don't have an account? Sign up";
     loginLabel.textContent = 'Email Address';
+});
+
+forgotPasswordBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = emailInput.value.trim();
+    if (!email) {
+        showToast('Please enter your email address first.', 'warning');
+        return;
+    }
+
+    try {
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + '/static/index.html',
+        });
+        if (error) throw error;
+        showToast('Password reset link sent to your email!', 'success');
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
 });
 
 loginBtn.addEventListener('click', async (e) => {
