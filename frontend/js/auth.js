@@ -2,75 +2,89 @@
  * Authentication Logic — using Supabase Client
  */
 
-let isRegistering = false;
-
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const fullNameInput = document.getElementById('full_name');
+const companyNameInput = document.getElementById('company_name');
 const loginBtn = document.getElementById('login-btn');
 const toggleBtn = document.getElementById('toggle-auth');
 const registerFields = document.getElementById('register-fields');
-const emailField = document.getElementById('email-field');
 const loginLabel = document.getElementById('login-label');
 
-// Initialize labels
-loginLabel.textContent = 'Email Address';
+let isRegistering = false;
 
 toggleBtn.addEventListener('click', () => {
     isRegistering = !isRegistering;
     registerFields.style.display = isRegistering ? 'block' : 'none';
-    emailField.style.display = isRegistering ? 'block' : 'none';
-    loginLabel.textContent = isRegistering ? 'Email Address' : 'Email Address';
     loginBtn.textContent = isRegistering ? 'Create Account' : 'Sign In';
     toggleBtn.textContent = isRegistering ? 'Already have an account? Sign in' : "Don't have an account? Sign up";
+    loginLabel.textContent = 'Email Address';
 });
 
-loginBtn.addEventListener('click', async () => {
-    const email = document.getElementById('username').value; // Using username field as email
-    const password = document.getElementById('password').value;
+loginBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    const fullName = fullNameInput.value.trim();
+    const companyName = companyNameInput.value.trim();
 
     if (!email || !password) {
-        showToast('Please fill in all required fields', 'error');
+        showToast('Please fill in all required fields.', 'warning');
         return;
     }
 
+    loginBtn.disabled = true;
+    loginBtn.textContent = isRegistering ? 'Creating Account...' : 'Signing In...';
+
     try {
         if (isRegistering) {
-            const full_name = document.getElementById('full_name').value;
+            if (!fullName || !companyName) {
+                throw new Error('Full Name and Company Name are required for registration.');
+            }
 
             const { data, error } = await supabaseClient.auth.signUp({
                 email,
                 password,
                 options: {
                     data: {
-                        full_name: full_name || email.split('@')[0],
+                        full_name: fullName,
+                        company_name: companyName
                     }
                 }
             });
-
+            
             if (error) throw error;
 
-            alert('Registration successful! Please check your email to activate your account.');
+            showToast('Registration successful! Please check your email to confirm your account.', 'success');
+            // Switch back to login mode
             isRegistering = false;
-            toggleBtn.click(); // Switch back to login
+            registerFields.style.display = 'none';
+            loginBtn.textContent = 'Sign In';
+            toggleBtn.textContent = "Don't have an account? Sign up";
         } else {
             const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email,
-                password
+                password,
             });
 
             if (error) {
-                if (error.message.includes('Invalid login credentials')) {
-                    throw new Error('Incorrect email or password');
+                if (error.message.includes('Email not confirmed')) {
+                    throw new Error('Please confirm your email address before logging in.');
                 }
                 throw error;
             }
 
-            // Save basic user info and redirect
-            API.setUser({
-                id: data.user.id,
-                username: data.user.email.split('@')[0],
-                role: 'user' // Actual role will be fetched from backend on first request
+            // Success! Store user info (optional, API.js handles session)
+            API.setUser({ 
+                email: data.user.email,
+                username: data.user.user_metadata.full_name || data.user.email.split('@')[0],
+                role: 'Admin' 
             });
-            
-            window.location.href = 'dashboard.html';
+
+            showToast('Welcome back!', 'success');
+            setTimeout(() => {
+                window.location.href = '/static/dashboard.html';
+            }, 800);
         }
     } catch (error) {
         console.error('Auth error:', error);

@@ -14,7 +14,7 @@ class User(Base):
     company_id = Column(String(50), nullable=True, index=True)  # Links user to a specific company
     username = Column(String(50), unique=True, nullable=False, index=True)
     email = Column(String(100), unique=True, nullable=False, index=True)
-    hashed_password = Column(String(255), nullable=False)
+    hashed_password = Column(String(255), nullable=True)
     full_name = Column(String(100), nullable=True)
     role = Column(String(20), nullable=False, default="employee")  # admin | manager | employee
     is_active = Column(Boolean, default=True)

@@ -30,15 +30,18 @@ async def get_current_user(
     user = db.query(User).filter(User.supabase_id == supabase_id).first()
     if not user:
         # Create new user on first request
-        # Generate a unique company_id for the new user
-        new_company_id = f"comp-{str(uuid.uuid4())[:8]}"
+        metadata = payload.get("user_metadata", {})
+        company_name = metadata.get("company_name", "My Company")
+        # Generate a slug-like company_id
+        company_slug = company_name.lower().replace(" ", "-")[:20]
+        new_company_id = f"{company_slug}-{str(uuid.uuid4())[:4]}"
+
         user = User(
             supabase_id=supabase_id,
             email=email,
             username=email.split("@")[0],
-            full_name=payload.get("user_metadata", {}).get("full_name", email.split("@")[0]),
+            full_name=metadata.get("full_name", email.split("@")[0]),
             company_id=new_company_id,
-            hashed_password="SUPABASE_AUTH",
             role="admin",  # First user of a company is admin
             is_active=True,
             is_verified=True
