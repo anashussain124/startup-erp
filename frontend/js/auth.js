@@ -10,6 +10,9 @@ const registerFields = document.getElementById('register-fields');
 const emailField = document.getElementById('email-field');
 const loginLabel = document.getElementById('login-label');
 
+// Initialize labels
+loginLabel.textContent = 'Email Address';
+
 toggleBtn.addEventListener('click', () => {
     isRegistering = !isRegistering;
     registerFields.style.display = isRegistering ? 'block' : 'none';

@@ -112,8 +112,9 @@ function showToast(message, type = 'info') {
 
 
 // ── Auth Guard ───────────────────────────────────────────────────────────────
-function requireAuth() {
-    if (!API.isAuthenticated()) {
+async function requireAuth() {
+    const authed = await API.isAuthenticated();
+    if (!authed) {
         window.location.href = '/static/index.html';
         return false;
     }

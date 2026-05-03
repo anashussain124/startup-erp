@@ -1,5 +1,5 @@
-document.addEventListener('DOMContentLoaded', () => {
-    if (!requireAuth()) return;
+document.addEventListener('DOMContentLoaded', async () => {
+    if (!(await requireAuth())) return;
     document.getElementById('sidebar').innerHTML = buildSidebar('crm');
     loadCustomers(); loadLeads(); loadSales();
 });
