@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Insights | Startup ERP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <nav>
+        <div style="font-weight: 700; font-size: 1.2rem;">Startup ERP</div>
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="documents.html">Documents</a>
+            <a href="ai.html">Ask AI</a>
+            <a href="#" id="logout-link">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>AI Business Insights</h1>
+        <p>Ask questions about your company documents and data.</p>
+
+        <div class="chat-container" id="chat-box">
+            <div class="message message-ai">
+                Hello! I'm your ERP intelligence assistant. Ask me anything about your uploaded company data.
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem;">
+            <input type="text" id="query-input" placeholder="e.g., Summarize our latest financial report" style="flex-grow: 1;">
+            <button class="btn btn-primary" id="send-btn">Ask AI</button>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const queryInput = document.getElementById('query-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        async function askAI() {
+            const query = queryInput.value.trim();
+            if (!query) return;
+
+            // Add user message
+            addMessage(query, 'user');
+            queryInput.value = '';
+
+            // Loading state
+            const loadingMsg = addMessage("Thinking...", 'ai');
+
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            try {
+                const res = await fetch(`${CONFIG.API_BASE_URL}/ai/query`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${session.access_token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query })
+                });
+                
+                const data = await res.json();
+                loadingMsg.textContent = data.answer;
+            } catch (err) {
+                loadingMsg.textContent = "Error communicating with AI.";
+            }
+        }
+
+        function addMessage(text, type) {
+            const msg = document.createElement('div');
+            msg.className = `message message-${type}`;
+            msg.textContent = text;
+            chatBox.appendChild(msg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            return msg;
+        }
+
+        sendBtn.addEventListener('click', askAI);
+        queryInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') askAI();
+        });
+
+        checkAuth();
+    </script>
+</body>
+</html>

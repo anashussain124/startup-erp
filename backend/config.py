@@ -35,25 +35,46 @@ PG_DB = os.getenv("PG_DB", "startup_erp")
 # SQLite settings (used when DB_TYPE == "sqlite")
 SQLITE_PATH = os.getenv("SQLITE_PATH", "startup_erp.db")
 
+from urllib.parse import urlparse, urlunparse, parse_qs, urlencode, quote_plus
+
 def get_database_url() -> str:
     """Return the appropriate database URL based on config priority."""
     # 1. Explicit DATABASE_URL takes top priority (Supabase, Render, Heroku, etc.)
     if DATABASE_URL_OVERRIDE:
-        # SQLAlchemy 1.4+ requires 'postgresql://' instead of 'postgres://'
-        # We also force 'psycopg2' for better Vercel compatibility
-        if DATABASE_URL_OVERRIDE.startswith("postgres://"):
-            return DATABASE_URL_OVERRIDE.replace("postgres://", "postgresql+psycopg2://", 1)
-        return DATABASE_URL_OVERRIDE
+        url = DATABASE_URL_OVERRIDE
+        
+        # Standardize scheme for SQLAlchemy + Psycopg2
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql+psycopg2://", 1)
+        elif url.startswith("postgresql://") and not url.startswith("postgresql+psycopg2://"):
+            url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
+            
+        # Sanitize query parameters (remove 'supa' or other invalid options)
+        try:
+            parsed = urlparse(url)
+            if parsed.query:
+                query = parse_qs(parsed.query)
+                # Remove known problematic parameters
+                for bad_key in ['supa', 'connect_timeout']:
+                    if bad_key in query:
+                        query.pop(bad_key)
+                
+                new_query = urlencode(query, doseq=True)
+                url = urlunparse(parsed._replace(query=new_query))
+        except Exception:
+            pass # Keep original if parsing fails
+            
+        return url
     
     # 2. Construct from DB_TYPE
     if DB_TYPE == "mysql":
         return (
-            f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}"
+            f"mysql+pymysql://{quote_plus(MYSQL_USER)}:{quote_plus(MYSQL_PASSWORD)}"
             f"@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
         )
     if DB_TYPE == "postgresql":
         return (
-            f"postgresql+psycopg2://{PG_USER}:{PG_PASSWORD}"
+            f"postgresql+psycopg2://{quote_plus(PG_USER)}:{quote_plus(PG_PASSWORD)}"
             f"@{PG_HOST}:{PG_PORT}/{PG_DB}"
         )
     
@@ -80,6 +101,18 @@ JWT_EXPIRY_MINUTES = int(os.getenv("JWT_EXPIRY_MINUTES", "480"))  # 8 hours
 # =============================================================================
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
 
+
+# =============================================================================
+# Supabase Configuration
+# =============================================================================
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY")
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
+
+# =============================================================================
+# OpenAI Configuration
+# =============================================================================
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # =============================================================================
 # ML Models Directory

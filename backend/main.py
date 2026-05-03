@@ -33,6 +33,9 @@ from routers.reports import router as reports_router
 from ml.predict import router as ml_router
 from routers.insights import router as insights_router
 from routers.forecast import router as forecast_router
+from routers.documents import router as documents_router
+from routers.ai import router as ai_router
+from routers.billing import router as billing_router
 
 
 # ── Logging ──────────────────────────────────────────────────────────────────
@@ -126,6 +129,10 @@ app.include_router(reports_router, prefix="/api")
 app.include_router(ml_router, prefix="/api")
 app.include_router(insights_router, prefix="/api")
 app.include_router(forecast_router, prefix="/api")
+app.include_router(documents_router, prefix="/api")
+app.include_router(ai_router, prefix="/api")
+app.include_router(billing_router, prefix="/api")
+app.include_router(insights_router, prefix="/api")
 
 
 @app.get("/")

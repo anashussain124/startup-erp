@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Base | Startup ERP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <nav>
+        <div style="font-weight: 700; font-size: 1.2rem;">Startup ERP</div>
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="documents.html">Documents</a>
+            <a href="ai.html">Ask AI</a>
+            <a href="#" id="logout-link">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Company Knowledge Base</h1>
+        <p>Upload documents (PDF, DOCX) to train your company AI.</p>
+
+        <div class="card" style="border: 2px dashed var(--border); text-align: center; padding: 3rem;">
+            <input type="file" id="file-input" style="display: none;">
+            <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">Choose File to Upload</button>
+            <p style="margin-top: 1rem; font-size: 0.9rem;">Supported: PDF, DOCX, CSV</p>
+        </div>
+
+        <div id="doc-list" style="margin-top: 2rem;">
+            <h2>Uploaded Documents</h2>
+            <!-- List populated by JS -->
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+        const fileInput = document.getElementById('file-input');
+        
+        fileInput.addEventListener('change', async () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            const res = await fetch(`${CONFIG.API_BASE_URL}/documents/upload`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${session.access_token}` },
+                body: formData
+            });
+
+            if (res.ok) {
+                alert("File uploaded and processed!");
+                loadDocs();
+            } else {
+                alert("Upload failed.");
+            }
+        });
+
+        async function loadDocs() {
+            await checkAuth();
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            const res = await fetch(`${CONFIG.API_BASE_URL}/documents/list`, {
+                headers: { 'Authorization': `Bearer ${session.access_token}` }
+            });
+            const docs = await res.json();
+            
+            const listDiv = document.getElementById('doc-list');
+            listDiv.innerHTML = '<h2>Uploaded Documents</h2>';
+            
+            docs.forEach(doc => {
+                const item = document.createElement('div');
+                item.className = 'card';
+                item.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 1.1rem;">${doc.filename}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Uploaded on ${new Date(doc.created_at).toLocaleDateString()}</div>
+                        </div>
+                        <div style="color: green; font-size: 0.8rem; font-weight: 600;">Processed</div>
+                    </div>
+                    <div style="background: var(--surface); padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+                        <strong>Auto-Insight:</strong> ${doc.summary || 'Processing summary...'}
+                    </div>
+                `;
+                listDiv.appendChild(item);
+            });
+        }
+        loadDocs();
+    </script>
+</body>
+</html>

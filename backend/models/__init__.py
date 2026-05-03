@@ -7,6 +7,10 @@ from models.finance import Expense, Revenue
 from models.procurement import Vendor, PurchaseOrder, InventoryItem
 from models.ppm import Project, Task
 from models.crm import Customer, Lead, Sale
+from models.document import CompanyDocument
+from models.company import Company
+from models.document_chunk import DocumentChunk
+from models.insight import Insight
 
 __all__ = [
     "User",
@@ -15,4 +19,8 @@ __all__ = [
     "Vendor", "PurchaseOrder", "InventoryItem",
     "Project", "Task",
     "Customer", "Lead", "Sale",
+    "CompanyDocument",
+    "Company",
+    "DocumentChunk",
+    "Insight"
 ]

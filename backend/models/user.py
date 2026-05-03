@@ -10,6 +10,8 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    supabase_id = Column(String(255), unique=True, nullable=True, index=True)
+    company_id = Column(String(50), nullable=True, index=True)  # Links user to a specific company
     username = Column(String(50), unique=True, nullable=False, index=True)
     email = Column(String(100), unique=True, nullable=False, index=True)
     hashed_password = Column(String(255), nullable=False)

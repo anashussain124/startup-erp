@@ -10,6 +10,7 @@ class Expense(Base):
     __tablename__ = "expenses"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    company_id = Column(String(50), nullable=False, index=True)
     category = Column(String(50), nullable=False)  # payroll | rent | marketing | utilities | supplies | other
     amount = Column(Float, nullable=False)
     date = Column(Date, nullable=False, index=True)
@@ -22,6 +23,7 @@ class Revenue(Base):
     __tablename__ = "revenue"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    company_id = Column(String(50), nullable=False, index=True)
     source = Column(String(100), nullable=False)  # product_sales | services | subscriptions | other
     amount = Column(Float, nullable=False)
     date = Column(Date, nullable=False, index=True)

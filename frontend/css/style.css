@@ -1,0 +1,133 @@
+/* 
+  Global Styles — Startup ERP (Minimalist White Theme)
+*/
+:root {
+    --primary: #2563eb;
+    --bg: #ffffff;
+    --text: #1f2937;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --surface: #f9fafb;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, sans-serif;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Typography */
+h1 { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; color: #111; }
+h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; }
+p { color: var(--text-muted); margin-bottom: 1rem; }
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* Forms */
+.form-group { margin-bottom: 1.5rem; }
+label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+input, select, textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 1rem;
+}
+
+/* Cards */
+.card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: shadow 0.2s;
+}
+
+.card:hover { border-color: var(--primary); }
+
+/* Navigation */
+nav {
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-links a {
+    margin-left: 2rem;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.nav-links a:hover { color: var(--primary); }
+
+/* Auth Layout */
+.auth-container {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 400px;
+    background: white;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Chat UI */
+.chat-container {
+    height: 60vh;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: var(--surface);
+}
+
+.message { margin-bottom: 1rem; padding: 1rem; border-radius: 12px; max-width: 80%; }
+.message-user { background: var(--primary); color: white; margin-left: auto; }
+.message-ai { background: white; border: 1px solid var(--border); }
