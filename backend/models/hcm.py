@@ -24,6 +24,7 @@ class Employee(Base):
     salary = Column(Float, nullable=False)
     hire_date = Column(Date, nullable=False)
     is_active = Column(Boolean, default=True)
+    company_id = Column(String(50), nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
@@ -41,6 +42,7 @@ class Attendance(Base):
     check_in = Column(Time, nullable=True)
     check_out = Column(Time, nullable=True)
     status = Column(String(20), nullable=False, default="present")  # present | absent | late | leave
+    company_id = Column(String(50), nullable=False, index=True)
 
     employee = relationship("Employee", back_populates="attendance_records")
 
@@ -61,6 +63,7 @@ class Payroll(Base):
     bonuses = Column(Float, default=0.0)
     net_salary = Column(Float, nullable=False)
     paid = Column(Boolean, default=False)
+    company_id = Column(String(50), nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     employee = relationship("Employee", back_populates="payroll_records")
@@ -78,6 +81,7 @@ class Performance(Base):
     goals_total = Column(Integer, default=0)
     review_notes = Column(Text, nullable=True)
     reviewer = Column(String(100), nullable=True)
+    company_id = Column(String(50), nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     employee = relationship("Employee", back_populates="performance_records")

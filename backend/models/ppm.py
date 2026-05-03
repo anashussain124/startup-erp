@@ -22,6 +22,7 @@ class Project(Base):
     status = Column(String(20), nullable=False, default="planning")  # planning | active | completed | delayed | on_hold
     priority = Column(String(10), default="medium")  # low | medium | high | critical
     manager = Column(String(100), nullable=True)
+    company_id = Column(String(50), nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     tasks = relationship("Task", back_populates="project", cascade="all, delete-orphan")
@@ -39,6 +40,7 @@ class Task(Base):
     priority = Column(String(10), default="medium")  # low | medium | high | critical
     due_date = Column(Date, nullable=True)
     completed_at = Column(DateTime(timezone=True), nullable=True)
+    company_id = Column(String(50), nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     project = relationship("Project", back_populates="tasks")

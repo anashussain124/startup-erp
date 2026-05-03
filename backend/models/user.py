@@ -18,5 +18,7 @@ class User(Base):
     full_name = Column(String(100), nullable=True)
     role = Column(String(20), nullable=False, default="employee")  # admin | manager | employee
     is_active = Column(Boolean, default=True)
+    is_verified = Column(Boolean, default=False)
+    verification_code = Column(String(10), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

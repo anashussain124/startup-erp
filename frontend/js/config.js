@@ -2,5 +2,8 @@
  * Frontend Configuration
  */
 const CONFIG = {
-    API_BASE_URL: window.location.origin + "/api"
+    // API_BASE_URL: "http://127.0.0.1:8000/api", // Local dev
+    API_BASE_URL: window.location.origin + "/api",
+    SUPABASE_URL: "https://your-project-id.supabase.co", 
+    SUPABASE_ANON_KEY: "your-anon-key"
 };

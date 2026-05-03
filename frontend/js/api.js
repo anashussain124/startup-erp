@@ -1,27 +1,28 @@
-/**
- * API Client — centralized HTTP wrapper with JWT injection.
- * Auto-detects backend URL. Includes GET response caching.
- */
+// Initialize Supabase Client
+const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
 const API = (() => {
-    // Auto-detect: use origin for deployed, localhost for dev
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     // For local dev, use the FastAPI port. For production/Vercel, use /api prefix
-    const BASE_URL = isLocal ? 'http://127.0.0.1:8000/api' : `${window.location.origin}/api`;
+    const BASE_URL = CONFIG.API_BASE_URL;
 
     // Simple GET cache (30s TTL)
     const _cache = new Map();
     const CACHE_TTL = 30000;
 
-    function getToken() { return localStorage.getItem('erp_token'); }
-    function setToken(token) { localStorage.setItem('erp_token', token); }
+    async function getToken() { 
+        const { data, error } = await supabaseClient.auth.getSession();
+        if (error || !data.session) return null;
+        return data.session.access_token;
+    }
+    
     function setUser(user) { localStorage.setItem('erp_user', JSON.stringify(user)); }
     function getUser() { const u = localStorage.getItem('erp_user'); return u ? JSON.parse(u) : null; }
-    function clearAuth() { localStorage.removeItem('erp_token'); localStorage.removeItem('erp_user'); }
-    function isAuthenticated() { return !!getToken(); }
+    function clearAuth() { supabaseClient.auth.signOut(); localStorage.removeItem('erp_user'); }
+    async function isAuthenticated() { const t = await getToken(); return !!t; }
 
     async function request(method, path, body = null) {
         const headers = { 'Content-Type': 'application/json' };
-        const token = getToken();
+        const token = await getToken();
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
         const config = { method, headers };

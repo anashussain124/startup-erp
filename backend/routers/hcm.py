@@ -23,7 +23,7 @@ def create_employee(
     db: Session = Depends(get_db),
     user=Depends(require_role("admin", "manager")),
 ):
-    return hcm_service.create_employee(db, data)
+    return hcm_service.create_employee(db, data, user.company_id)
 
 
 @router.get("/employees", response_model=list[EmployeeOut])
@@ -34,12 +34,12 @@ def list_employees(
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
-    return hcm_service.get_employees(db, skip, limit, department)
+    return hcm_service.get_employees(db, user.company_id, skip, limit, department)
 
 
 @router.get("/employees/{employee_id}", response_model=EmployeeOut)
 def get_employee(employee_id: int, db: Session = Depends(get_db), user=Depends(get_current_user)):
-    emp = hcm_service.get_employee(db, employee_id)
+    emp = hcm_service.get_employee(db, employee_id, user.company_id)
     if not emp:
         raise HTTPException(status_code=404, detail="Employee not found")
     return emp
@@ -52,7 +52,7 @@ def update_employee(
     db: Session = Depends(get_db),
     user=Depends(require_role("admin", "manager")),
 ):
-    emp = hcm_service.update_employee(db, employee_id, data)
+    emp = hcm_service.update_employee(db, employee_id, data, user.company_id)
     if not emp:
         raise HTTPException(status_code=404, detail="Employee not found")
     return emp
@@ -64,7 +64,7 @@ def delete_employee(
     db: Session = Depends(get_db),
     user=Depends(require_role("admin")),
 ):
-    if not hcm_service.delete_employee(db, employee_id):
+    if not hcm_service.delete_employee(db, employee_id, user.company_id):
         raise HTTPException(status_code=404, detail="Employee not found")
 
 
@@ -75,7 +75,7 @@ def create_attendance(
     db: Session = Depends(get_db),
     user=Depends(require_role("admin", "manager")),
 ):
-    return hcm_service.create_attendance(db, data)
+    return hcm_service.create_attendance(db, data, user.company_id)
 
 
 @router.get("/attendance", response_model=list[AttendanceOut])
@@ -86,7 +86,7 @@ def list_attendance(
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
-    return hcm_service.get_attendance(db, employee_id, skip, limit)
+    return hcm_service.get_attendance(db, user.company_id, employee_id, skip, limit)
 
 
 @router.put("/attendance/{record_id}", response_model=AttendanceOut)
@@ -96,7 +96,7 @@ def update_attendance(
     db: Session = Depends(get_db),
     user=Depends(require_role("admin", "manager")),
 ):
-    record = hcm_service.update_attendance(db, record_id, data)
+    record = hcm_service.update_attendance(db, record_id, data, user.company_id)
     if not record:
         raise HTTPException(status_code=404, detail="Record not found")
     return record
@@ -108,7 +108,7 @@ def delete_attendance(
     db: Session = Depends(get_db),
     user=Depends(require_role("admin")),
 ):
-    if not hcm_service.delete_attendance(db, record_id):
+    if not hcm_service.delete_attendance(db, record_id, user.company_id):
         raise HTTPException(status_code=404, detail="Record not found")
 
 
@@ -119,7 +119,7 @@ def create_payroll(
     db: Session = Depends(get_db),
     user=Depends(require_role("admin", "manager")),
 ):
-    return hcm_service.create_payroll(db, data)
+    return hcm_service.create_payroll(db, data, user.company_id)
 
 
 @router.get("/payroll", response_model=list[PayrollOut])
@@ -130,7 +130,7 @@ def list_payroll(
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
-    return hcm_service.get_payrolls(db, employee_id, skip, limit)
+    return hcm_service.get_payrolls(db, user.company_id, employee_id, skip, limit)
 
 
 @router.put("/payroll/{record_id}", response_model=PayrollOut)
@@ -140,7 +140,7 @@ def update_payroll(
     db: Session = Depends(get_db),
     user=Depends(require_role("admin", "manager")),
 ):
-    record = hcm_service.update_payroll(db, record_id, data)
+    record = hcm_service.update_payroll(db, record_id, data, user.company_id)
     if not record:
         raise HTTPException(status_code=404, detail="Record not found")
     return record
@@ -152,7 +152,7 @@ def delete_payroll(
     db: Session = Depends(get_db),
     user=Depends(require_role("admin")),
 ):
-    if not hcm_service.delete_payroll(db, record_id):
+    if not hcm_service.delete_payroll(db, record_id, user.company_id):
         raise HTTPException(status_code=404, detail="Record not found")
 
 
@@ -163,7 +163,7 @@ def create_performance(
     db: Session = Depends(get_db),
     user=Depends(require_role("admin", "manager")),
 ):
-    return hcm_service.create_performance(db, data)
+    return hcm_service.create_performance(db, data, user.company_id)
 
 
 @router.get("/performance", response_model=list[PerformanceOut])
@@ -174,7 +174,7 @@ def list_performance(
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
-    return hcm_service.get_performances(db, employee_id, skip, limit)
+    return hcm_service.get_performances(db, user.company_id, employee_id, skip, limit)
 
 
 @router.put("/performance/{record_id}", response_model=PerformanceOut)
@@ -184,7 +184,7 @@ def update_performance(
     db: Session = Depends(get_db),
     user=Depends(require_role("admin", "manager")),
 ):
-    record = hcm_service.update_performance(db, record_id, data)
+    record = hcm_service.update_performance(db, record_id, data, user.company_id)
     if not record:
         raise HTTPException(status_code=404, detail="Record not found")
     return record
@@ -196,5 +196,5 @@ def delete_performance(
     db: Session = Depends(get_db),
     user=Depends(require_role("admin")),
 ):
-    if not hcm_service.delete_performance(db, record_id):
+    if not hcm_service.delete_performance(db, record_id, user.company_id):
         raise HTTPException(status_code=404, detail="Record not found")

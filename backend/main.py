@@ -118,7 +118,7 @@ app.add_middleware(
 
 
 # ── Register Routers (BEFORE static mount) ───────────────────────────────────
-app.include_router(auth_router, prefix="/api")
+# app.include_router(auth_router, prefix="/api") # Superseded by Supabase Auth
 app.include_router(hcm_router, prefix="/api")
 app.include_router(finance_router, prefix="/api")
 app.include_router(procurement_router, prefix="/api")
@@ -132,7 +132,6 @@ app.include_router(forecast_router, prefix="/api")
 app.include_router(documents_router, prefix="/api")
 app.include_router(ai_router, prefix="/api")
 app.include_router(billing_router, prefix="/api")
-app.include_router(insights_router, prefix="/api")
 
 
 @app.get("/")

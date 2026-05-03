@@ -20,6 +20,7 @@ class Vendor(Base):
     address = Column(Text, nullable=True)
     rating = Column(Float, default=3.0)  # 1.0 - 5.0
     is_active = Column(Integer, default=1)
+    company_id = Column(String(50), nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     purchase_orders = relationship("PurchaseOrder", back_populates="vendor")
@@ -37,6 +38,7 @@ class PurchaseOrder(Base):
     status = Column(String(20), nullable=False, default="pending")  # pending | approved | shipped | delivered | cancelled
     order_date = Column(Date, nullable=False)
     expected_delivery = Column(Date, nullable=True)
+    company_id = Column(String(50), nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     vendor = relationship("Vendor", back_populates="purchase_orders")
@@ -53,6 +55,7 @@ class InventoryItem(Base):
     reorder_level = Column(Integer, default=10)
     vendor_id = Column(Integer, ForeignKey("vendors.id"), nullable=True)
     category = Column(String(50), nullable=True)
+    company_id = Column(String(50), nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     vendor = relationship("Vendor", back_populates="inventory_items")

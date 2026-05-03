@@ -123,6 +123,18 @@ async function loadForecast() {
 async function loadKPIs() {
     try {
         const kpis = await API.get('/api/dashboard/kpis');
+        
+        // Show first-time user prompt if no documents uploaded
+        if (kpis.documents && kpis.documents.count === 0) {
+            const execEl = document.getElementById('exec-summary');
+            execEl.innerHTML = `
+                <div class="exec-summary first-time">
+                    <div style="font-size:1.1rem;font-weight:700;color:var(--primary);margin-bottom:8px">Welcome to your AI ERP!</div>
+                    <p style="color:var(--text-secondary);margin-bottom:16px">To get started, upload your first document (Invoice, Contract, or Report) to generate AI insights.</p>
+                    <a href="upload.html" class="btn btn-primary" style="display:inline-block;padding:8px 20px;border-radius:6px;text-decoration:none">Upload My First Document</a>
+                </div>`;
+        }
+
         const items = [
             { icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>', value: kpis.hcm.total_employees, label: 'Employees', color: 'blue' },
             { icon: '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>', value: formatCurrency(kpis.finance.total_revenue), label: 'Revenue', color: 'green' },

@@ -1,5 +1,5 @@
 /**
- * Authentication Logic — using backend API
+ * Authentication Logic — using Supabase Client
  */
 
 let isRegistering = false;
@@ -14,60 +14,63 @@ toggleBtn.addEventListener('click', () => {
     isRegistering = !isRegistering;
     registerFields.style.display = isRegistering ? 'block' : 'none';
     emailField.style.display = isRegistering ? 'block' : 'none';
-    loginLabel.textContent = isRegistering ? 'Username' : 'Username or Email';
+    loginLabel.textContent = isRegistering ? 'Email Address' : 'Email Address';
     loginBtn.textContent = isRegistering ? 'Create Account' : 'Sign In';
     toggleBtn.textContent = isRegistering ? 'Already have an account? Sign in' : "Don't have an account? Sign up";
 });
 
 loginBtn.addEventListener('click', async () => {
-    const username = document.getElementById('username').value;
+    const email = document.getElementById('username').value; // Using username field as email
     const password = document.getElementById('password').value;
 
-    if (!username || !password) {
-        alert('Please fill in all required fields');
+    if (!email || !password) {
+        showToast('Please fill in all required fields', 'error');
         return;
     }
 
     try {
         if (isRegistering) {
-            const email = document.getElementById('email').value;
             const full_name = document.getElementById('full_name').value;
-            const company_id = document.getElementById('company_id').value;
 
-            if (!email) {
-                alert('Email is required for registration');
-                return;
-            }
-
-            const data = await API.post('/auth/register', {
-                username,
+            const { data, error } = await supabaseClient.auth.signUp({
                 email,
                 password,
-                full_name,
-                role: 'admin' // Default to admin for first user of a company
+                options: {
+                    data: {
+                        full_name: full_name || email.split('@')[0],
+                    }
+                }
             });
 
-            alert('Registration successful! You can now sign in.');
+            if (error) throw error;
+
+            alert('Registration successful! Please check your email to activate your account.');
             isRegistering = false;
             toggleBtn.click(); // Switch back to login
         } else {
-            const data = await API.post('/auth/login', {
-                username,
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email,
                 password
             });
 
-            // Save session and redirect
-            API.setToken(data.access_token);
+            if (error) {
+                if (error.message.includes('Invalid login credentials')) {
+                    throw new Error('Incorrect email or password');
+                }
+                throw error;
+            }
+
+            // Save basic user info and redirect
             API.setUser({
-                id: data.user_id,
-                username: data.username,
-                role: data.role
+                id: data.user.id,
+                username: data.user.email.split('@')[0],
+                role: 'user' // Actual role will be fetched from backend on first request
             });
             
             window.location.href = 'dashboard.html';
         }
     } catch (error) {
         console.error('Auth error:', error);
-        alert(error.message || 'Authentication failed. Please check your credentials.');
+        showToast(error.message || 'Authentication failed.', 'error');
     }
 });

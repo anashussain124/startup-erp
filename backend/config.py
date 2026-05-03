@@ -1,8 +1,8 @@
-"""
-Application Configuration
-Reads settings from environment variables with sensible defaults.
-"""
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 # =============================================================================
@@ -108,6 +108,7 @@ CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
+JWKS_CACHE_TTL = int(os.getenv("JWKS_CACHE_TTL", "600"))  # 10 minutes
 
 # =============================================================================
 # OpenAI Configuration

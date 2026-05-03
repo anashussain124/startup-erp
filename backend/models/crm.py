@@ -20,6 +20,7 @@ class Customer(Base):
     segment = Column(String(30), nullable=True)  # enterprise | smb | startup | individual
     lifetime_value = Column(Float, default=0.0)
     is_active = Column(Integer, default=1)
+    company_id = Column(String(50), nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     leads = relationship("Lead", back_populates="customer", cascade="all, delete-orphan")
@@ -37,6 +38,7 @@ class Lead(Base):
     status = Column(String(20), nullable=False, default="new")  # new | contacted | qualified | proposal | converted | lost
     estimated_value = Column(Float, default=0.0)
     notes = Column(Text, nullable=True)
+    company_id = Column(String(50), nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     customer = relationship("Customer", back_populates="leads")
@@ -51,6 +53,7 @@ class Sale(Base):
     date = Column(Date, nullable=False)
     product_description = Column(String(200), nullable=True)
     payment_status = Column(String(20), default="pending")  # pending | paid | overdue
+    company_id = Column(String(50), nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     customer = relationship("Customer", back_populates="sales")
