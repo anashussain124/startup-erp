@@ -1,35 +1,29 @@
 /**
- * Common Utilities
+ * Common Utilities — using backend API
  */
 
 async function checkAuth() {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
+    if (!API.isAuthenticated()) {
         window.location.href = 'index.html';
         return null;
     }
     
-    // Get local user info from backend
-    const res = await fetch(`${CONFIG.API_BASE_URL}/auth/me`, {
-        headers: {
-            'Authorization': `Bearer ${session.access_token}`
-        }
-    });
-    
-    if (!res.ok) {
-        console.error("Failed to sync user session with backend");
+    try {
+        const user = await API.get('/auth/me');
+        return user;
+    } catch (err) {
+        console.error("Auth sync failed:", err);
+        API.clearAuth();
+        window.location.href = 'index.html';
+        return null;
     }
-    
-    return await res.json();
 }
 
 const logoutLink = document.getElementById('logout-link');
 if (logoutLink) {
-    logoutLink.addEventListener('click', async (e) => {
+    logoutLink.addEventListener('click', (e) => {
         e.preventDefault();
-        await supabase.auth.signOut();
-        localStorage.removeItem('supabase_session');
+        API.clearAuth();
         window.location.href = 'index.html';
     });
 }

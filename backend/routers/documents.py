@@ -1,3 +1,8 @@
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from sqlalchemy.orm import Session
+from database import get_db
+from models.user import User
+from models.document import CompanyDocument
 from auth.dependencies import get_current_user, require_role
 from services.supabase_service import upload_to_supabase
 from services.extraction_service import extract_text

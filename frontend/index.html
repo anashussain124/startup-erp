@@ -12,8 +12,11 @@
         <h1 style="text-align: center; font-size: 1.5rem;">Startup ERP</h1>
         <p style="text-align: center; margin-bottom: 2rem;">Intelligent ERP for modern teams</p>
         
-        <div id="auth-form">
             <div class="form-group">
+                <label id="login-label">Username or Email</label>
+                <input type="text" id="username" placeholder="admin or name@company.com">
+            </div>
+            <div class="form-group" id="email-field" style="display: none;">
                 <label>Email Address</label>
                 <input type="email" id="email" placeholder="name@company.com">
             </div>
@@ -22,23 +25,24 @@
                 <input type="password" id="password" placeholder="••••••••">
             </div>
             
-            <button id="login-btn" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">Sign In</button>
-            <button id="toggle-auth" class="btn" style="width: 100%; border: none; font-size: 0.9rem;">Don't have an account? Sign up</button>
-        </div>
+            <div id="register-fields" style="display: none; margin-top: 1rem;">
+                 <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="full_name" placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Company Name</label>
+                    <input type="text" id="company_id" placeholder="my-company-slug">
+                </div>
+            </div>
 
-        <div id="register-fields" style="display: none; margin-top: 1rem;">
-             <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" id="full_name" placeholder="John Doe">
-            </div>
-            <div class="form-group">
-                <label>Company Name (New Company ID)</label>
-                <input type="text" id="company_id" placeholder="my-company-slug">
-            </div>
-        </div>
+            <button id="login-btn" class="btn btn-primary" style="width: 100%; margin-top: 1rem; margin-bottom: 1rem;">Sign In</button>
+            <button id="toggle-auth" class="btn" style="width: 100%; border: none; font-size: 0.9rem;">Don't have an account? Sign up</button>
+
     </div>
 
     <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
 </body>
 </html>

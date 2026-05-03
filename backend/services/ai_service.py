@@ -8,7 +8,14 @@ from models.document import CompanyDocument
 
 from models.document_chunk import DocumentChunk
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+client = None
+if OPENAI_API_KEY:
+    try:
+        client = OpenAI(api_key=OPENAI_API_KEY)
+    except Exception as e:
+        print(f"[OpenAI] Initialization failed: {e}")
+else:
+    print("[OpenAI] API key missing. AI services will use fallbacks.")
 
 def chunk_text(text: str, chunk_size: int = 1500) -> list[str]:
     """Split text into chunks of roughly chunk_size characters."""
@@ -16,6 +23,8 @@ def chunk_text(text: str, chunk_size: int = 1500) -> list[str]:
 
 def generate_summary(text: str) -> str:
     """Generate a 2-3 sentence summary of the text."""
+    if not client:
+        return "Summary unavailable (AI disconnected)."
     try:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
@@ -32,6 +41,8 @@ def generate_summary(text: str) -> str:
 
 def generate_document_insights(text: str) -> dict:
     """Generate key insights and smart analytics from document text."""
+    if not client:
+        return {"insights": ["New data uploaded"], "topics": ["General"]}
     try:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
@@ -50,6 +61,8 @@ def generate_document_insights(text: str) -> dict:
 
 def generate_actionable_suggestion(context: str, query: str) -> dict:
     """Suggest 1 actionable business step based on a query and its context."""
+    if not client:
+        return {"advice": "Review your latest reports for trends.", "category": "General"}
     try:
         prompt = f"Based on this context: {context}\nAnd this query: {query}\nSuggest one 10-word actionable business advice and a category."
         response = client.chat.completions.create(
@@ -93,6 +106,9 @@ def query_ai_with_context(query: str, company_id: str, db: Session) -> str:
     context = "\n\n".join([chunk.text_content for chunk in chunks])
     
     # 3. Query OpenAI
+    if not client:
+        return "I am currently disconnected from the AI engine. Please check your API keys."
+    
     prompt = f"""
     Context from company documents:
     ---

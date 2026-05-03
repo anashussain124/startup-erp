@@ -35,7 +35,8 @@ def seed(fast_seed=False):
                 new_user = User(
                     username=uname, email=email,
                     hashed_password=hash_password(pwd),
-                    full_name=fname, role=role
+                    full_name=fname, role=role,
+                    company_id="demo-corp"
                 )
                 db.add(new_user)
                 has_new_user = True
@@ -151,6 +152,7 @@ def seed(fast_seed=False):
             for month in range(1, 13):
                 for _ in range(random.randint(3, 8)):
                     revenues.append(Revenue(
+                        company_id="demo-corp",
                         source=random.choice(sources),
                         amount=round(random.uniform(5000, 50000), 2),
                         date=date(2025, month, random.randint(1, 28)),
@@ -160,6 +162,7 @@ def seed(fast_seed=False):
             for month in range(1, 4):
                 for _ in range(random.randint(5, 10)):
                     revenues.append(Revenue(
+                        company_id="demo-corp",
                         source=random.choice(sources),
                         amount=round(random.uniform(8000, 60000), 2),
                         date=date(2026, month, random.randint(1, 28)),
@@ -173,6 +176,7 @@ def seed(fast_seed=False):
             for month in range(1, 13):
                 for _ in range(random.randint(4, 10)):
                     expenses.append(Expense(
+                        company_id="demo-corp",
                         category=random.choice(categories),
                         amount=round(random.uniform(500, 15000), 2),
                         date=date(2025, month, random.randint(1, 28)),
@@ -182,6 +186,7 @@ def seed(fast_seed=False):
             for month in range(1, 4):
                 for _ in range(random.randint(5, 8)):
                     expenses.append(Expense(
+                        company_id="demo-corp",
                         category=random.choice(categories),
                         amount=round(random.uniform(1000, 20000), 2),
                         date=date(2026, month, random.randint(1, 28)),

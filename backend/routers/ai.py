@@ -1,3 +1,7 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from database import get_db
+from models.user import User
 from auth.dependencies import get_current_user
 from services.ai_service import query_ai_with_context
 from services.billing_service import check_billing_limits, increment_usage

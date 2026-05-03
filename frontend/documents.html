@@ -35,6 +35,7 @@
     </div>
 
     <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
     <script src="js/common.js"></script>
     <script>
         const fileInput = document.getElementById('file-input');
@@ -46,51 +47,61 @@
             const formData = new FormData();
             formData.append('file', file);
 
-            const { data: { session } } = await supabase.auth.getSession();
-            
-            const res = await fetch(`${CONFIG.API_BASE_URL}/documents/upload`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${session.access_token}` },
-                body: formData
-            });
+            try {
+                const res = await fetch(`${API.BASE_URL}/documents/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${API.getToken()}` },
+                    body: formData
+                });
 
-            if (res.ok) {
-                alert("File uploaded and processed!");
-                loadDocs();
-            } else {
-                alert("Upload failed.");
+                if (res.ok) {
+                    alert("File uploaded and processed!");
+                    loadDocs();
+                } else {
+                    const err = await res.json();
+                    alert(`Upload failed: ${err.detail || 'Unknown error'}`);
+                }
+            } catch (err) {
+                console.error("Upload error:", err);
+                alert("Upload failed. Check console for details.");
             }
         });
 
         async function loadDocs() {
-            await checkAuth();
-            const { data: { session } } = await supabase.auth.getSession();
+            const user = await checkAuth();
+            if (!user) return;
             
-            const res = await fetch(`${CONFIG.API_BASE_URL}/documents/list`, {
-                headers: { 'Authorization': `Bearer ${session.access_token}` }
-            });
-            const docs = await res.json();
-            
-            const listDiv = document.getElementById('doc-list');
-            listDiv.innerHTML = '<h2>Uploaded Documents</h2>';
-            
-            docs.forEach(doc => {
-                const item = document.createElement('div');
-                item.className = 'card';
-                item.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <div>
-                            <div style="font-weight: 600; font-size: 1.1rem;">${doc.filename}</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">Uploaded on ${new Date(doc.created_at).toLocaleDateString()}</div>
+            try {
+                const docs = await API.get('/documents/list');
+                
+                const listDiv = document.getElementById('doc-list');
+                listDiv.innerHTML = '<h2>Uploaded Documents</h2>';
+                
+                if (!docs || docs.length === 0) {
+                    listDiv.innerHTML += '<p style="color: var(--text-muted);">No documents uploaded yet.</p>';
+                    return;
+                }
+
+                docs.forEach(doc => {
+                    const item = document.createElement('div');
+                    item.className = 'card';
+                    item.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <div>
+                                <div style="font-weight: 600; font-size: 1.1rem;">${doc.filename}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">Uploaded on ${new Date(doc.created_at).toLocaleDateString()}</div>
+                            </div>
+                            <div style="color: green; font-size: 0.8rem; font-weight: 600;">Processed</div>
                         </div>
-                        <div style="color: green; font-size: 0.8rem; font-weight: 600;">Processed</div>
-                    </div>
-                    <div style="background: var(--surface); padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
-                        <strong>Auto-Insight:</strong> ${doc.summary || 'Processing summary...'}
-                    </div>
-                `;
-                listDiv.appendChild(item);
-            });
+                        <div style="background: var(--surface); padding: 1rem; border-radius: 8px; font-size: 0.9rem;">
+                            <strong>Auto-Insight:</strong> ${doc.summary || 'Processing summary...'}
+                        </div>
+                    `;
+                    listDiv.appendChild(item);
+                });
+            } catch (err) {
+                console.error("Load docs failed:", err);
+            }
         }
         loadDocs();
     </script>
